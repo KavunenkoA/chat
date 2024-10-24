@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Client</title>
+</head>
+<body>
+    <h1>WebSocket Client</h1>
+    <input id="nameInput" type="text" placeholder="Введіть ім'я" />
+    <button onclick="setName()">Зберегти ім'я</button>
+    <br/>
+    <input id="messageInput" type="text" placeholder="Введіть повідомлення" />
+    <button onclick="sendMessage()">Відправити</button>
+    <ul id="messages"></ul>
+
+    <script>
+        const ws = new WebSocket('ws://localhost:8080');
+        let clientName = 'Анонім';
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            const messages = document.getElementById('messages');
+            const li = document.createElement('li');
+            li.textContent = `${data.name}: ${data.message}`;
+            messages.appendChild(li);
+        };
+
+        function setName() {
+            const input = document.getElementById('nameInput');
+            clientName = input.value;
+            ws.send(JSON.stringify({ type: 'setName', name: clientName }));
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            ws.send(JSON.stringify({ type: 'chat', text: input.value }));
+            input.value = '';
+        }
+    </script>
+</body>
+</html>
